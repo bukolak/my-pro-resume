@@ -6,6 +6,7 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}                # change to your region
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}        # your AWS account ID
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}        # your ECR repo name
   IMAGE_TAG: ${{ github.sha }}
 
@@ -29,7 +30,7 @@ jobs:
 
       - name: Build, tag, and push image
         env:
-          ECR_REGISTRY: ${{ env.855335083395}}.dkr.ecr.${{ env.us-east-1 }}.amazonaws.com
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
