@@ -7,7 +7,7 @@ on:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}                # change to your region
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}        # your AWS account ID
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}        # your ECR repo name
+  ECR_REPOSITORY: my-repo       # your ECR repo name
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
