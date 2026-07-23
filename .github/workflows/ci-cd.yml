@@ -1,23 +1,35 @@
 name: My first pipeline
+
 on:
-    push: 
-        branches: ["main"]
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}                # change to your region
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}        # your ECR repo name
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
-    build:
-        runs-on: ubuntu-latest # macos, windows-latest
-        steps:
-            - name: Clone the code
-              uses: actions/checkout@v4
-            - name: Build image
-              run:
-                docker build -t bukolak/cicd-portfolio .
-            - name: Docker login
-              uses: docker/login-action@v3
-              with:
-                username: bukolak
-                password: ${{ secrets.DOCKER_PASS }}
-                environment:
-                 ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true
-            - name: Push image
-              run:
-                docker push bukolak/cicd-portfolio
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        env:
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
